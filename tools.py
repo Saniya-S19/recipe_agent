@@ -1,6 +1,23 @@
+from datetime import datetime, timedelta
+
 def get_expiration_date(ingredient: str):
     """
-    Placeholder tool for the agent.
-    We will build the real logic and connect it to the LLM tomorrow!
+    Calculates the real expiration date based on today's date.
     """
-    return "Expires in 2 days"
+    # A simple database of shelf life in days
+    shelf_life = {
+        "spinach": 5,
+        "chicken": 2,
+        "milk": 7,
+        "tomato": 6,
+        "rice": 180
+    }
+    
+    ingredient_lower = ingredient.lower()
+    
+    if ingredient_lower in shelf_life:
+        days_left = shelf_life[ingredient_lower]
+        expiration = datetime.now() + timedelta(days=days_left)
+        return f"{ingredient} expires in {days_left} days (on {expiration.strftime('%Y-%m-%d')})."
+    else:
+        return f"Unknown ingredient. Assume it needs to be used within 3 days."
