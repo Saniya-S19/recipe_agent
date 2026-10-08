@@ -4,13 +4,18 @@ def get_expiration_date(ingredient: str):
     """
     Calculates the real expiration date based on today's date.
     """
-    # A simple database of shelf life in days
+    # Expanded database of shelf life in days
     shelf_life = {
         "spinach": 5,
         "chicken": 2,
         "milk": 7,
         "tomato": 6,
-        "rice": 180
+        "rice": 180,
+        "onion": 30,
+        "garlic": 150,
+        "potato": 30,
+        "eggs": 21,
+        "bread": 5
     }
     
     ingredient_lower = ingredient.lower()
