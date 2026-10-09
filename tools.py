@@ -26,3 +26,22 @@ def get_expiration_date(ingredient: str):
         return f"{ingredient} expires in {days_left} days (on {expiration.strftime('%Y-%m-%d')})."
     else:
         return f"Unknown ingredient. Assume it needs to be used within 3 days."
+
+def get_nutritional_info(ingredient: str):
+    """
+    Returns the basic nutritional profile of an ingredient.
+    """
+    nutrition_db = {
+        "chicken": "High Protein, Low Carb, Low Fat",
+        "spinach": "Low Protein, Low Carb, High Iron",
+        "rice": "Low Protein, High Carb, Low Fat",
+        "eggs": "High Protein, Low Carb, Moderate Fat",
+        "pasta": "Low Protein, High Carb, Low Fat"
+    }
+    
+    ingredient_lower = ingredient.lower()
+    
+    if ingredient_lower in nutrition_db:
+        return f"{ingredient} nutrition: {nutrition_db[ingredient_lower]}."
+    else:
+        return f"Nutrition info not found for {ingredient}."
