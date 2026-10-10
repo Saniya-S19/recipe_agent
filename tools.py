@@ -45,3 +45,18 @@ def get_nutritional_info(ingredient: str):
         return f"{ingredient} nutrition: {nutrition_db[ingredient_lower]}."
     else:
         return f"Nutrition info not found for {ingredient}."
+
+def get_time_of_day():
+    """
+    Checks the current system time to provide meal context.
+    """
+    current_hour = datetime.now().hour
+    
+    if current_hour < 11:
+        return "Context: It is morning. Recommend breakfast."
+    elif current_hour < 16:
+        return "Context: It is afternoon. Recommend lunch."
+    elif current_hour < 21:
+        return "Context: It is evening. Recommend dinner."
+    else:
+        return "Context: It is late night. Recommend a light, easy-to-digest midnight snack."

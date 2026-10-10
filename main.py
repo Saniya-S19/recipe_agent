@@ -2,16 +2,17 @@ import os
 import json
 from dotenv import load_dotenv
 from openai import OpenAI
-from tools import get_expiration_date, get_nutritional_info  # 1. Added the new tool here
+# 1. Import the new time tool
+from tools import get_expiration_date, get_nutritional_info, get_time_of_day 
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def agent_loop(user_input: str):
     system_prompt = """
-    You are a Zero-Waste Culinary Assistant. Your goal is to suggest meals that prioritize using the user's expiring ingredients, while factoring in their nutritional needs. 
+    You are a Zero-Waste Culinary Assistant. Your goal is to suggest meals that prioritize using the user's expiring ingredients, while factoring in their nutritional needs and the current time of day. 
     
-    You MUST always reply in valid JSON format using exactly these keys: "recipe_name", "expiring_ingredients", "nutrition_notes", and "instructions". Do not include any conversational text before or after the JSON.
+    You MUST always reply in valid JSON format using exactly these keys: "recipe_name", "meal_type", "expiring_ingredients", "nutrition_notes", and "instructions". Do not include any conversational text before or after the JSON.
     """
     
     agent_tools = [
@@ -29,7 +30,6 @@ def agent_loop(user_input: str):
                 }
             }
         },
-        # 2. Added the instruction manual for the new tool
         {
             "type": "function",
             "function": {
@@ -41,6 +41,19 @@ def agent_loop(user_input: str):
                         "ingredient": {"type": "string", "description": "The ingredient name"}
                     },
                     "required": ["ingredient"]
+                }
+            }
+        },
+        # 2. Add the instruction manual for the time tool (Notice it has empty properties because it doesn't need input)
+        {
+            "type": "function",
+            "function": {
+                "name": "get_time_of_day",
+                "description": "Checks the current time to recommend appropriate meals (breakfast, lunch, dinner, or late-night snacks).",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
                 }
             }
         }
@@ -68,7 +81,6 @@ def agent_loop(user_input: str):
             function_name = tool_call.function.name
             arguments = json.loads(tool_call.function.arguments)
             
-            # 3. Handle both tools in the execution loop
             if function_name == "get_expiration_date":
                 ingredient = arguments.get("ingredient")
                 print(f"[Running Tool] Checking expiration for {ingredient}...")
@@ -78,6 +90,11 @@ def agent_loop(user_input: str):
                 ingredient = arguments.get("ingredient")
                 print(f"[Running Tool] Fetching nutrition for {ingredient}...")
                 tool_result = get_nutritional_info(ingredient)
+                
+            # 3. Handle the execution of the new time tool
+            elif function_name == "get_time_of_day":
+                print(f"[Running Tool] Checking the current time of day...")
+                tool_result = get_time_of_day()
                 
             messages.append({
                 "tool_call_id": tool_call.id,
@@ -97,7 +114,7 @@ def agent_loop(user_input: str):
     return response_message.content
 
 if __name__ == "__main__":
-    print("Welcome to the Culinary Agent. Type 'exit' to quit.")
+    print("Welcome to the Context-Aware Culinary Agent. Type 'exit' to quit.")
     while True:
         user_query = input("\nWhat are we solving for today? > ")
         if user_query.lower() == 'exit':
