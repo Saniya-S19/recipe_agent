@@ -134,7 +134,7 @@ if __name__ == "__main__":
             recipe_data = json.loads(clean_answer)
             
             print("\n" + "="*40)
-            print(f"🍽️  RECIPE: {recipe_data.get('recipe_name', 'Chef\\'s Special')}")
+            print(f"🍽️  RECIPE: {recipe_data.get('recipe_name', 'Chef Special')}")
             print(f"🕒  MEAL TYPE: {recipe_data.get('meal_type', 'Any')}")
             print(f"⚠️  EXPIRING: {', '.join(recipe_data.get('expiring_ingredients', []))}")
             print(f"💪  NUTRITION: {recipe_data.get('nutrition_notes', 'N/A')}")
