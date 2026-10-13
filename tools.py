@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import requests
 
 def get_expiration_date(ingredient: str):
     """
@@ -29,22 +30,32 @@ def get_expiration_date(ingredient: str):
 
 def get_nutritional_info(ingredient: str):
     """
-    Returns the basic nutritional profile of an ingredient.
+    Fetches live nutritional data from the Open Food Facts API.
     """
-    nutrition_db = {
-        "chicken": "High Protein, Low Carb, Low Fat",
-        "spinach": "Low Protein, Low Carb, High Iron",
-        "rice": "Low Protein, High Carb, Low Fat",
-        "eggs": "High Protein, Low Carb, Moderate Fat",
-        "pasta": "Low Protein, High Carb, Low Fat"
-    }
+    # The public search endpoint for Open Food Facts
+    url = f"https://world.openfoodfacts.org/cgi/search.pl?search_terms={ingredient}&search_simple=1&action=process&json=1&page_size=1"
     
-    ingredient_lower = ingredient.lower()
-    
-    if ingredient_lower in nutrition_db:
-        return f"{ingredient} nutrition: {nutrition_db[ingredient_lower]}."
-    else:
-        return f"Nutrition info not found for {ingredient}."
+    try:
+        response = requests.get(url, timeout=5)
+        data = response.json()
+        
+        # Check if the API found any matching products
+        if data.get("products"):
+            product = data["products"][0]
+            nutriments = product.get("nutriments", {})
+            
+            # Extract macros per 100g
+            energy = nutriments.get("energy-kcal_100g", "N/A")
+            proteins = nutriments.get("proteins_100g", "N/A")
+            carbs = nutriments.get("carbohydrates_100g", "N/A")
+            fat = nutriments.get("fat_100g", "N/A")
+            
+            return f"Live nutrition per 100g of {ingredient}: {energy} kcal, {proteins}g Protein, {carbs}g Carbs, {fat}g Fat."
+        else:
+            return f"Could not find live nutrition data for {ingredient}. Assume standard macros."
+            
+    except Exception as e:
+        return f"API Connection Error: {str(e)}"
 
 def get_time_of_day():
     """
